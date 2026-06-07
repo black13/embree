@@ -9,6 +9,7 @@
 #include "context.h"
 #include "../geometry/filter.h"
 #include "../../include/embree4/rtcore_ray.h"
+#include "raylog.h"
 using namespace embree;
 
 RTC_NAMESPACE_BEGIN;
@@ -622,7 +623,19 @@ RTC_NAMESPACE_BEGIN;
     }
     RayQueryContext context(scene,user_context,args);
     
+    raylog(__FILE__,__LINE__,__FUNCTION__,"ray org=(%f,%f,%f) dir=(%f,%f,%f) tnear=%f tfar=%f",
+           rayhit->ray.org_x,rayhit->ray.org_y,rayhit->ray.org_z,
+           rayhit->ray.dir_x,rayhit->ray.dir_y,rayhit->ray.dir_z,
+           rayhit->ray.tnear,rayhit->ray.tfar);
+    
     scene->intersectors.intersect(*rayhit,&context);
+    
+    if (rayhit->hit.geomID != RTC_INVALID_GEOMETRY_ID)
+      raylog(__FILE__,__LINE__,__FUNCTION__,"HIT geom=%u prim=%u t=%f u=%f v=%f",
+             rayhit->hit.geomID,rayhit->hit.primID,rayhit->ray.tfar,
+             rayhit->hit.u,rayhit->hit.v);
+    else
+      raylog(__FILE__,__LINE__,__FUNCTION__,"MISS");
 #if defined(DEBUG)
     ((RayHit*)rayhit)->verifyHit();
 #endif
