@@ -18,6 +18,7 @@
 #include "../geometry/linei_intersector.h"
 #include "../geometry/subdivpatch1_intersector.h"
 #include "../geometry/object_intersector.h"
+#include "../common/raylog.h"
 #include "../geometry/instance_intersector.h"
 #include "../geometry/instance_array_intersector.h"
 #include "../geometry/subgrid_intersector.h"
@@ -88,6 +89,8 @@ namespace embree
           bool nodeIntersected = BVHNNodeIntersector1<N, types, robust>::intersect(cur, tray, ray.time(), tNear, mask);
           if (unlikely(!nodeIntersected)) { STAT3(normal.trav_nodes,-1,-1,-1); break; }
 
+          raylog(__FILE__,__LINE__,__FUNCTION__,"NODE visit mask=%zu tNear=%f", mask, (float)tNear[0]);
+
           /* if no child is hit, pop next node */
           if (unlikely(mask == 0))
             goto pop;
@@ -100,6 +103,7 @@ namespace embree
         assert(cur != BVH::emptyNode);
         STAT3(normal.trav_leaves,1,1,1);
         size_t num; Primitive* prim = (Primitive*)cur.leaf(num);
+        raylog(__FILE__,__LINE__,__FUNCTION__,"LEAF %zu primitives, first primID=%u", num, prim ? *(unsigned*)prim : 0);
         size_t lazy_node = 0;
         PrimitiveIntersector1::intersect(This, pre, ray, context, prim, num, tray, lazy_node);
         tray.tfar = ray.tfar;

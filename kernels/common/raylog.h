@@ -1,6 +1,4 @@
-/* Ray instrumentation log — writes __FILE__, __LINE__, __FUNCTION__
- * for each ray intersection event to a dated log file. */
-
+/* Ray instrumentation log */
 #pragma once
 #include <stdio.h>
 #include <time.h>
